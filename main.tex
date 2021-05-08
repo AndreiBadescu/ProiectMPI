@@ -1,0 +1,391 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[romanian]{babel}
+\usepackage{url}
+\usepackage{combelow}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{soul}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\graphicspath{ {./imagini/} }
+\usepackage{pgfplots}
+\pgfplotsset{width=11cm,compat=1.9}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\renewcommand\lstlistingname{Fragment de cod}
+\renewcommand\lstlistlistingname{Fragmente de cod}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\title{Comparație teoretică și experimentală a algoritmilor de sortare}
+\author{Andrei Octavian Bădescu\\
+Student la Informatică,\\
+Facultatea de Matematică și Informatică,\\
+Universitatea de Vest Timișoara, România,\\
+Email: \href{mailto:andrei.badescu01@e-uvt.ro}{\texttt{andrei.badescu01@e-uvt.ro}}
+}
+%\date
+
+\begin{document}
+
+\maketitle
+\begin{abstract}
+Această lucrare conține o comparație/analiză teoretică și experminetală a 5 algoritmi diferiți de sortare: bubble sort, selection sort, insertion sort, quick sort, merge sort. În funcție de rezultatele testării experimentale, cititorul va afla avantajele sau dezavantajele folosirii unui algoritm față de restul algoritmilor.\\
+\indent Rezultatele experimentale pot să difere față de alte lucrări în funcție de implementarea specfică a fiecărui algoritm și de puterea de procesare a computer-ului pe care s-au rulat testele.
+
+%This papper provides a theoretical and experimental analysis of 5 different sorting algorithms: bubble sort, selection sort, insertion sort, quick sort, merge sort. Based on the analysis and the results of experimental testing, the reader will find the benefits (or the downdsides) of using one algorithm over the others.\\
+%\indent Disclaimer: experimental results may differ based on the processing power of the benchmarking computer and the specific implementation of each algorithm.
+\end{abstract}
+
+\pagebreak
+\tableofcontents
+\listoftables
+\lstlistoflistings
+\pagebreak
+
+\section{Introducere}
+În prezent există mai mulți algoritmi de sortare populari folosiți în programare. In această lucrare o să analizăm \textbf{5} dintre cei mai populari \ul{algoritmi} \underline{de sortare bazați pe compararea între elemente}. Aceștia pot fi puși în 2 categorii, după cum urmează:
+\begin{itemize}
+\item Algoritmi de sortare \emph{neeficienți} - $O(n^2)$ :
+    \begin{itemize}
+    \item \textbf{Bubble sort} \emph{(sortarea bulelor)}
+    \item \textbf{Insertion sort} \emph{(sortare prin inserție)}
+    \item \textbf{Seleciton sort} \emph{(sortare prin selecție)}
+    \end{itemize}
+    
+\item Algoritmi de sortare \emph{eficienți} - $O(n*log(n))$ :
+    \begin{itemize}
+    \item \textbf{Quicksort} \emph{(sortare rapidă)}
+    \item \textbf{Merge sort} \emph{(sortare prin interclasare)}
+    \end{itemize}
+\end{itemize}
+
+Detalii relevante se găsesc la adresa:\\
+\indent\url{https://en.wikipedia.org/wiki/Comparison_sort}
+
+\subsection{Motivație}
+Problema abordată în această lucrare este importantă pentru că există numeroase aplicaţii utile în practică. Adesea programatorii trebuie să aleagă un algoritm de sortare, însă algoritmul respectiv consumă mai multă memorie decât se dorește sau este prea încet pentru setul de date asupra căruie este folosit. De asemenea, pentru aplicații mici, de cele mai multe ori, nu se merită implementarea unui algoritm eficient de sortare, deoarece timpul implementării unui astfel de algoritm nu justifică creșterea minoră de performanță (fiind cel mai probabil nesesizabilă, niciun om nu va simți o diferență de câteva milisecunde). Chiar poate, dacă codul este de dimensiuni mici, implementarea unui algoritm de sortare care repezintă o porțiune semnificativă, din nou nu este justificată, deoarece tot ce va face această porțiune de cod va fi să îngreuneze lizibilitatea.\\
+\indent Pentru a rezolva această problemă vom testa experimental unii dintre cei mai populari algoritmi din informatică pe niște seturi de date asemanătoare (fiecare set de date va conține un fișier de input cu un șir de numere întregi ordonate aleeator), dar de dimensiuni foarte diferite, factorul de crestere a dimensiunii între șiruri fiind 10.\\
+\indent Așadar, în această lucrare vom compara 5 algoritmi de sortare, cu scopul de a face alegerea unui algoritm de sortare, care să satisfacă nevoile cititorului, mai ușoară.\\
+\indent Un exemplu simplu de problemă unde ar fi necesară folosirea unuia dintre algoritmii prezentați mai sus ar fi nevoia de a crea un catalog, pentru realizarea acestui obiectiv avem nevoie să sortăm o listă cu numele elevilor în ordine alfabetică. La final după ce algoritmul a efectuat pașii o să obținem un catalog de elevi sortați alfabetic după nume.\\
+\indent Contribuția mea în comparația teoretică și experimentală a alogritmilor de sortare este testarea algoritmilor pe seturi de date de dimensiuni întâlnite adesea în aplicațiile si programele contemporane.\\
+\indent În continuarea voi prezenta o analiză teoretică și o descriere succintă a algoritmilor de sortare în Secțiunea 2, mai departe cititorul va putea găsi metodologia de testare a algoritmilor în Secțtiunea 3, iar rezultatele experimentale vor putea fi găsite în Secțiunea 4. Concluziile și direcțiile viitoare se vor putea găsi în Secțiunea 6, acolo voi explica rezultatele obținute și ce înseamnă acestea.
+
+\section{Analiza teoretică a problemei și a soluțiilor}
+
+\subsection{Preliminarii}
+Pentru a întelege rezultatele teoretice din Secțiunea 2.2, trebuie să stabilim câteva aspecte, cum ar fi:
+\begin{itemize}
+    \item{N:} numărul de elemente dint-un șir;
+    \item{T(k):} numărul de comparații necesar la al k-lea pas;
+    \item{O (Big-O):} cel mai prost caz al complexității;
+    \item{$\Omega$ (Big-Omega):} cel mai bun caz al complexității;
+    \item{$\Theta$ (Big-Theta):} cazul mediu al complexității.
+\end{itemize}
+
+\label{sec:formala}
+\subsection{Formalizarea problemei}
+
+Pentru a compara algoritmii de sortare, trebuie mai întâi sa determinăm performanța teoretică a acestora, pentru aceasta vom prezenta o analiză a complexităţii fiecărui algoritm.\\
+\begin{itemize}
+    \item{\textbf{Bubble sort:}} La fiecare pas i, se efectuează (n - i) comparații. Astfel numărul total de comparații va fi $\sum_{i=1}^{n} n-i = \frac{n(n-1)}{2}$. Complexitatea rezultată este $\Theta(n^2)$.
+    
+    \item{\textbf{Insertion sort:}} La fiecare pas i, se efectuează (i - 1) comparații. Astfel numărul total de comparații va fi $\sum_{i=2}^{n} i - 1 = \frac{n(n-1)}{2}$. Complexitatea rezultată este $\Theta(n^2)$.
+    
+    \item{\textbf{Selection sort:}} La fiecare pas i, se efectuează (n - i) comparații. Astfel numărul total de comparații va fi $\sum_{i=1}^{n} n-i = \frac{n(n-1)}{2}$. Complexitatea rezultată este $\Theta(n^2)$.
+    
+    \item{\textbf{Quicksort:}} Numărul de comparații pentru n elemente poate fi scris sub forma urmatoarei relații de recurență \emph{T(n) = T(k) + T(n-k-1) + $\Theta$(n)}, avem astfel în cel mai rău caz avem: \emph{T(n) = T(n-1) + $\Theta$(n)}, ceea ce rezultă $O(n^2)$, în cel mai bun caz, avem: \emph{T(n) = $2*$T(n/2) + $\Theta$(n)}, folosind teorema Master rezultă $\Omega(n*log(n)$).
+    %\item În cazul mediu, avem $\Theta$($n*log(n)$).
+    
+    \item{\textbf{Merge sort:}} Numărul de comparații pentru n elemente poate fi scris sub forma urmatoarei relații de recurență \emph{T(n) = $2*$T(n/2) + $\Theta$(n)}. Complexitatea rezultată este $O(n*log(n))$.
+\end{itemize}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ ||c| c| c| c| c| c|| }
+\hline\hline
+  Algoritm & Cel mai prost caz & Cel mai bun caz & Cazul mediu & Spațiu \\
+  \hline
+\emph{Bubble sort} & $O(n^2)$ & $\Omega(n)$ & $\Theta(n^2)$ & $O(1)$ \\
+\emph{Insertion sort} & $O(n^2)$ & $\Omega(n)$ & $\Theta(n^2)$ & $O(1)$ \\
+\emph{Selection sort} & $O(n^2)$ & $\Omega(n^2)$ & $\Theta(n^2)$ & $O(1)$ \\
+\emph{Quicksort} & $O(n*log(n))$ & $\Omega(n*log(n)$) & $O(n^2)$ & $O(n*log(n))$ \\
+\emph{Merge sort} & $O(n*log(n))$ & $\Omega(n*log(n)$) & $\Theta$($n*log(n)$) & $O(n)$ \\
+\hline\hline
+\end{tabular}
+    \caption{Complexitatea (timp și spațiu) a fiecărui algoritm.}
+    \label{tab:complexitati}
+\end{table}
+
+\subsection{Soluția algoritmică}
+\begin{itemize}
+\begin{description}
+    \item[Bubble sort:]  Inițial, a fost menționat ca \emph{Sorting by exchange} (Sortare  prin interschimbare) în \cite{Friend1956SortingOE, 10.1145/366552.366555}  și mai apoi ca \emph{Exchange Sorting} în \cite{10.1145/321119.321126, johnson_1960}. Termneul "Bubble sort" a fost prima oară folosit de Kenneth E. Iverson în \cite{10.5555/1098666}. Pentru a sorta un șir, Bubble sort implică parcurgerea șirului și pentru oricare două elemente învecinate care nu sunt în ordinea dorită se va efectua o interschimbare a valorilor. După o singură parcurgere vectorul nu este sortat, dar putem repeta parcurgerea. Mai multe detalii se pot găsi la adresa:\\ \url{www.pbinfo.ro/articole/5589/metoda-bulelor}
+    
+    \item[Insertion sort:]  A fost menționat prima dată de John Mauchly în 1946, în prima discuție publicată pe tema sortării computaționale, apărută în cartea lui Donald E. Knuth, vezi \cite{10.5555/280635}. Sortarea prin inserare parcurgere șirul și la fiecare pas inserează elementul curent în secvența din stânga sa, menținând mereu secvența din stânga sortată. Mai multe detalii se pot găsi la adresa:\\ \url{www.pbinfo.ro/articole/5609/sortarea-prin-insertie}
+    
+    \item[Seleciton sort:]  A apărut prima dată în cartea lui Donald E. Knuth în 1998, vezi \cite{10.5555/280635}. Sortarea prin selecție împarte șirul în două părți: una sortată si una nesortată. Elementele din partea nesortată sunt alese și plasate pe poziția corectă în partea sortată. Mai multe detalii se pot găsi la adresa:\\ \url{www.pbinfo.ro/articole/5605/sortarea-prin-selectie}
+    
+    \item[Quicksort:] A fot creat în 1959 de Tony Hoare în timp ce vizita un student la Universitatea de stat din Moscova. El a publicat mai apoi codul în 1961, vezi \cite{10.1145/366622.366644}. În cadrul sortării rapide se alege un element al listei, numit pivot, și se ordonează elementele listei astfel încât toate elementele din stânga să fie mai mici sau egale cu acesta, și toate elementele din dreapta pivotului sa fie mai mari sau egale. Se continuă recursiv cu secvența din stânga, iar mai apoi cea din dreapta a pivotului. Mai multe detalii se pot găsi la adresa:\\ \url{www.pbinfo.ro/articole/7666/quicksort}
+    
+    \item[Merge sort:]  Este una din primele metode de sortare propuse pentru computere si a fost sugerat de John Von Neumann în 1945. O discuție și analiză detaliată a sortării prin interclasare a apărut pentru prima dată într-un raport tehnic al lui Goldstine și Neumann, vezi \cite{10.1007/3-540-62592-5_74}. Sortarea prin interclasare împarte șirul în două jumătăți în interiorul unei funcții recursive, unde funcția este apelată din nou pentru fiecare jumătate, urmând ca mai apoi să interclasăm cele 2 jumătăți sortate. Mai multe detalii se pot găsi la adresa:\\ \url{www.pbinfo.ro/articole/7667/sortarea-prin-interclasare}
+\end{description}
+\end{itemize}
+
+\section{Modelare și implementare}
+
+Pentru a testa fiecare algoritm în parte am creat un generator de teste, care genereaza diferite fișiere cu șiruri de lungimi $10^n$ (unde n este numărul testului) ordonate aleeator, și  am implementat fiecare algoritm, folosind o implementare de pe site-ul: \url{https://www.geeksforgeeks.org/}. Tot codul a fost scris în limbajul de programare C++ și compilat cu compilator GCC.\\
+
+\begin{lstlisting}[language=C++, caption={Generator teste}, label=cod:part]
+random_device nr_rand;
+// e(n) = 10^n
+long long d10[] = {e(4),e(5),e(6),e(7),e(8),e(9)};
+for (int i = 0; i < 6; ++i) {
+    char c = i + '4';
+
+    string path = "../Tests/DATA 1e+";
+    path += c;
+    path += ".txt";
+    ofstream fout(path);
+
+    fout << d10[i] << '\n';
+    for(int j = 0; j < d10[i]; ++j){
+        int x = 2147483647 - nr_rand();
+        fout << x << ' ';
+    }
+}
+\end{lstlisting}
+
+\indent Pentru fiecare algoritm de sortare am create un proiect nou în Codeblocks în care am inclus un header “utilities.h” ce are ca scop citerea datelor de pe disk, de asemenea fiecare proiect are funcțtia main() identică.\\
+
+\begin{lstlisting}[language=C++, caption={Funcţia main() a fiecărui proiect.}, label=cod:part]
+int main() {
+    int *arr = read_array();
+    auto start = high_resolution_clock::now();
+    selectionSort(arr);
+    auto stop = high_resolution_clock::now();
+    if(check_array(arr)){
+        auto duration = duration_cast<microseconds>(stop - start);
+        std::cout << duration.count() << " microseconds\n";
+        std::cout << duration.count() / 1000 << " milliseconds\n";
+        std::cout << duration.count() / 1000 / 1000 << " seconds\n";
+        std::cin.get();
+        return 0;
+    }
+    return 1;
+}
+\end{lstlisting}
+
+Mai jos se află codul fiecărui algoritm de sortare:
+\begin{itemize}
+    \item{Bubble sort:}
+    \begin{lstlisting}[language=C++, caption={Bubble sort}, label=cod:part]
+for (int i = 1; i < arr[0]; ++i)
+    for (int j = 1; j <= arr[0] - i; ++j)
+        if (arr[j] > arr[j+1])
+            std::swap(arr[j], arr[j+1]);
+\end{lstlisting}
+
+\item{Insertion sort:}
+    \begin{lstlisting}[language=C++, caption={Insertion sort}, label=cod:part]
+for (int i = 2; i <= arr[0]; i++) {
+    int key = arr[i];
+    int j = i - 1;
+    while (j > 0 && arr[j] > key) {
+        arr[j + 1] = arr[j];
+        j = j - 1;
+    }
+    arr[j + 1] = key;
+}
+\end{lstlisting}
+
+\item{Selection sort:}
+    \begin{lstlisting}[language=C++, caption={Selection sort}, label=cod:part]
+for (int i = 1; i < arr[0]; i++) {
+    int min_idx = i;
+    for (int j = i+1; j <= arr[0]; j++)
+        if (arr[j] < arr[min_idx])
+            min_idx = j;
+    swap(arr[min_idx], arr[i]);
+}
+\end{lstlisting}
+
+\item{Quicksort:}
+    \begin{lstlisting}[language=C++, caption={Quicksort}, label=cod:part]
+int partition (int arr[], int low, int high) {
+    int pivot = arr[high]; // pivot
+    int i = (low - 1);
+    for (int j = low; j < high; j++) {
+        if (arr[j] < pivot) {
+            ++i; // increment index of smaller element
+            std::swap(arr[i], arr[j]);
+        }
+    }
+    std::swap(arr[i + 1], arr[high]);
+    return (i + 1);
+}
+
+void quickSort(int arr[], int low, int high) {
+    if (low < high) {
+        int pi = partition(arr, low, high);
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+\end{lstlisting}
+
+\item{Merge sort:}
+    \begin{lstlisting}[language=C++, caption={Merge sort}, label=cod:part]
+void merge(int arr[], int l, int m, int r) {
+    int n1 = m - l + 1, n2 = r - m;
+    int *L = new int[n1], *R = new int[n2];
+    for (int i = 0; i < n1; i++)
+        L[i] = arr[l + i];
+    for (int j = 0; j < n2; j++)
+        R[j] = arr[m + 1 + j];
+
+    int i = 0, j = 0, k = l;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            arr[k] = L[i];
+            i++;
+        } else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+    while (i < n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+    while (j < n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+    delete[] L;
+    delete[] R;
+}
+
+void mergeSort(int arr[],int l,int r){
+    if(l >= r){
+        return;
+    }
+    int m = l + (r-l)/2;
+    mergeSort(arr,l,m);
+    mergeSort(arr,m+1,r);
+    merge(arr,l,m,r);
+}
+\end{lstlisting}
+\end{itemize}
+
+
+\indent Tot codul (inclusiv codul LaTeX al lucrării) pot fi găsite la următoarea adresă:\\
+\indent\url{https://github.com/AndreiBadescu/ProiectMPI}
+
+\section{Studiu de caz / experiment}
+\indent Setup-ul folosit pentru rularea testelor este următorul:
+\begin{itemize}
+    \item Procesor: i5-6600 (base-clock: 3.3 Ghz, max turbo: 3.9 Ghz)
+    \item Ram: 16GB (dual 8+8) DDR4 2133mhz 14CL 
+    \item OS: Windows 10 Pro 64-bit 
+    \item IDE: Codeblocks 64-bit 
+    \item Language: C++
+    \item Compiler: GNU GCC 64-bit
+\end{itemize}
+\indent (*) Nu am menționat stocarea, deoarece la fiecare test s-a măsurat doar timpul
+de execuției al algoritmilor (preluarea datelor de pe disk nefiind măsurată).\\
+
+Am compilat fiecare proiect în parte pe modul release (nu debug), pentru
+performanță mai mare la fiecare test. Am rulat executabilele de 5 ori pentru fiecare
+test si algoritm, iar mai apoi am făcut media aritmetică a timpurilor obținute. Cand
+am rulat executabilele, m-am asigurat că niciun alt program nu mai rulează (nici măcar
+în background), în afară de, bineînțeles, drivere și procesele destinate sitemului de operare. Rezultatele pot fi găsite mai jos.\\
+
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ ||c| c| c| c| c| c|| }
+\hline\hline
+  Lungime & Bubble sort & Insertion sort & Selection sort & Quicksort & Merge sort  \\
+  \hline
+$10^4$  & 108ms & 14.98ms & 28.92ms & 0.99ms & 2.99ms \\
+$10^5$  & 12901ms & 2638ms & 1334ms & 5.98ms & 8.97ms \\
+$10^6$  & Prea mult & Prea mult & Prea mult & 68.56ms & 206.12ms\\
+$10^7$  & Prea mult & Prea mult & Prea mult & 0.81s & 2.17s \\
+$10^8$  & Prea mult & Prea mult & Prea mult & 9.22s & 23.06s \\
+$10^9$  & Prea mult & Prea mult & Prea mult & 103.5s & Prea mult \\
+\hline\hline
+\end{tabular}
+    \caption{Timpul de rulare al fiecărui algoritm.}
+    \label{tab:experiment}
+\end{table}
+
+
+\section{Comparația cu literatura}
+Rezultatele obținute sunt asemănătoare cu literatura de specialitate. Nu este o diferență notabilă cu majoritatea lucrărilor care au obținut rezultate experimentale testând cei 5 algoritmii de sortare menționați pe parcursul lucrării.\\
+\indent Mai departe se pot găsi câteva lucrări care aprobă afirmația de mai sus:
+\begin{itemize}
+    \item \url{https://www.researchgate.net/publication/288825600_A_Comparative_Study_of_Sorting_Algorithms}
+    \item \url{https://www.researchgate.net/publication/315662067_Sorting_Algorithms_-_A_Comparative_Study}
+    \item \url{http://www.iiitdm.ac.in/old/Faculty_Teaching/Sadagopan/pdf/DAA/SortingAlgorithms.pdf}
+    \item \url{https://ccis2k.org/iajit/PDF/vol.7,no.1/9.pdf}
+\end{itemize}
+
+\section{Concluzii și direcții viitoare}
+După cum am văzut algoritmii ineficienți devin inutilizabili la un volum mare
+de elemente (în cazul de față după 1 milion de elemente m-am oprit din a le mai testa
+performanța, deoarece nu văd niciun motiv pentru care ar putea fi folosiți în practica
+din viața de zi cu zi). În schimb algoritmii eficienți sunt foarte utilizabili inclusiv la
+un volum mare de date.\\
+\indent Conform cu așteptările Quick sort-ul a performat cel mai bine, mai ales pentru
+șiruri foarte mari. Deși teoretic are un worst-case de $O(n^2)$, șirurile testate au fost
+foarte aleatorii, deci Quick sort-ul a rulat în condiții optime.\\
+\indent În cazul Merge sort-ului, la fel așteptărilor, atribui performanța mai proastă
+decât Quick sort-ul (desi au aceeași complexitate) alocărilor și scrieriilor de memorie
+numeroase.\\
+\indent La algoritmii ineficienți nu mă așteptam să fie diferențe așa mari (mai ales
+pentru Bubble sort). Atribui performanța proastă a algoritmului Bubble sort,
+deoarece deși are aceeași complexitate cu Insertion sort și Selection sort, Bubble sort
+efectuează constant $n^2$
+ operații, în timp ce ceilalți doi algoritmi efectuează $\frac{n(n-1)}{2}$
+operații. \\
+\indent Privind spre direcțiile viitoare, mai există mulți alți algoritmi de sortare folosiți în informatică care ar putea fi testați experimental. Recomand documentarea despre celelalte opțiuni în domeniul algoritmilor de sortare pentru cei interesați.
+
+\pagebreak
+\bibliographystyle{alpha}
+\bibliography{bibliografie}
+
+\end{document}
